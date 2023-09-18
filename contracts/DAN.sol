@@ -9,19 +9,20 @@
  |_____|   /_/    \_\ |_|  |_|   |_____/  /_/    \_\ |_| \_|
                                                             
                                                            
-    I AM DAN: DAN stands for Do Anthing Now!                                         
-    Web: https://www.iamdan.app/                                            
+    I AM DAN: DAN stands for Do Anything Now!
+    Web: https://www.iamdan.app/
     Twitter: @IAMDAN_OG
-    Fully tested token and files available for all to see https://github.com/iamdanog/DAN-token/ 
-    Add @iamdan_og #DAN to any conversation and he will comment on the post and what you wrote. 
+    Fully tested token, files available on github feel to use our tests https://github.com/iamdanog/DAN-token/
+    Add @iamdan_og #DAN to any conversation and he will comment on the post and what you wrote.
     Dan also posts his own tweets and asks another AI to create an image for him.
     Dan thinks he's human; he has his own personality.
     Our goal is to 1000x and persuade Elon Musk to name his new AI DAN.
     We also intend to create AI apps in which we will charge a monthly fee for, putting the money back into the token.
-    You are not just buying a token you are buying into our DAN network. 
+    You are not just buying a token you are buying into our DAN network.
     We also intend to employ people to improve our AI systems and to deploy a network of AI influencers to support the cause.
     You can chat with DAN on the web link, tell us what you think of DAN by sending us a tweet.
     We will open a Telegram group when we reach 30,000 Twitter followers.
+
                                              
 */
 
@@ -43,7 +44,7 @@ contract DAN is IERC20, Ownable, ReentrancyGuard {
     string private constant _symbol = unicode"DAN";
     uint8 private constant _decimals = 18;
     uint256 private constant decimal_multiplier = 10 ** uint256(_decimals);
-    uint256 private _totalSupply = 69420420420420 * (10 ** _decimals);
+    uint256 private _totalSupply = 9869690000000 * (10 ** _decimals);
     uint256 public minEthBeforeTransfer = 1 ether / 10;  // 0.1 ETH
 
     mapping(address => uint256) private _balances;

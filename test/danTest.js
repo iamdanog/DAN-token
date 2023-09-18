@@ -135,7 +135,7 @@ async function checkAndLogBalances(amountTokenDesired, amountETHDesired) {
   expect(await WETH.balanceOf(owner.address)).to.be.gte(amountETHDesired, "Owner doesn't have enough WETH tokens");
 }
 
-/*
+/* Since we are using a larger pool we dont need to use this 
 async function setupLiquidityPool() {
 // Desired liquidity pool amounts
 const amountDANDesired = ethers.utils.parseEther("8869689998000"); // 8,869,689,998,000 DAN
@@ -441,7 +441,7 @@ describe("Liquidity Tests", function() {
 
 
 
-/*
+/*  if we want a lp test 
 it("Should add liquidity to the DAN-WETH pool", async function() {
   
   const amountTokenDesired = ethers.utils.parseEther("100000"); // Increase this value
@@ -1041,10 +1041,6 @@ describe("DAN Token Tests", function() {
   const slippageTolerance = 2000;  // e.g., 0.5% slippage tolerance represented as basis points at 20%
 
 
-
-
-
-
 it("Testing transfer between non-exempt addresses", async function() {
   
  
@@ -1086,183 +1082,6 @@ it("Testing transfer between non-exempt addresses", async function() {
 });
 
 
-
-it("Simulating a buy - addr2 buying DAN with WETH", async function() {
-
-  
-    await getAndLogReserves();
-    await approveTokens();
-    await checkAndLogBalances(
-        ethers.utils.parseEther("1000000"), 
-        ethers.utils.parseEther("50")
-    );
-    await setupLiquidityPool();
-    await DAN.setMarketingReceiver(marketingWallet.address);
-
- 
-
-  
-  console.log("------------- STARTING BUY -------------------");
-  // Wrap 1 ETH into WETH for addr2
-  const depositAmount = ethers.utils.parseEther("1");
-  await WETH.connect(addr2).deposit({ value: depositAmount });
-
-  await WETH.connect(addr2).approve(uniswapRouter.address, depositAmount);
-  console.log("Approved WETH for swapping.");
-
-  // Calculate the minimum output considering the slippage tolerance
-  const amountOutMin = depositAmount.sub(depositAmount.mul(slippageTolerance).div(10000));
-
-  await uniswapRouter.connect(addr2).swapExactTokensForTokensSupportingFeeOnTransferTokens(
-      depositAmount, 
-      amountOutMin, 
-      [WETH.address, DAN.address], 
-      addr2.address, 
-      Math.floor(Date.now() / 1000) + 60 * 10
-  );
-
-  console.log("Swapped WETH for DAN.");
-
-  // Verify and print DAN balance after swap
-const danBalance = await DAN.balanceOf(addr2.address);
-console.log("DAN Balance for addr2:", ethers.utils.formatEther(danBalance)); 
-
-// Determine the original amount before the fee was applied (i.e., the amount `addr2` would've received if no fee was deducted).
-const originalAmount = danBalance.div(99).mul(100);
-
-// Calculate the expected 1% fee from the original amount
-const expectedFee = originalAmount.mul(1).div(100);
-
-const contractBalance = await DAN.balanceOf(DAN.address);
-const difference = contractBalance.sub(expectedFee).abs();
-
-// Setting a very small tolerance for potential rounding errors
-const tolerance = ethers.utils.parseUnits("1", 14);  // 0.0001 when considering 18 decimals
-
-console.log("Original Amount (before fee):", ethers.utils.formatEther(originalAmount));
-console.log("Expected 1% Fee:", ethers.utils.formatEther(expectedFee));
-console.log("Tolerance Contract Balance:", ethers.utils.formatEther(contractBalance));
-console.log("Tolerance Difference:", ethers.utils.formatEther(difference));
-
-console.log("Checking Difference Against Tolerance");
-expect(difference.lte(tolerance), `Difference ${ethers.utils.formatEther(difference)} exceeds tolerance ${ethers.utils.formatEther(tolerance)}`).to.be.true;
-
-console.log("1% fee received by the contract address:", ethers.utils.formatEther(expectedFee));
-
-const tx1 = await WETH.connect(addr2).deposit({ value: depositAmount });
-await logGasUsed(tx1);
-
-const tx2 = await WETH.connect(addr2).approve(uniswapRouter.address, depositAmount);
-await logGasUsed(tx2);
-
-const tx3 = await uniswapRouter.connect(addr2).swapExactTokensForTokensSupportingFeeOnTransferTokens(
-  depositAmount, 
-  amountOutMin, 
-  [WETH.address, DAN.address], 
-  addr2.address, 
-  Math.floor(Date.now() / 1000) + 60 * 10
-);
-await logGasUsed(tx3);
-
-});
-
-
-
-it("Simulating a sell - addr2 selling DAN for WETH", async function() {
-
-
-    await getAndLogReserves();
-    await approveTokens();
-    await checkAndLogBalances(
-        ethers.utils.parseEther("1000000"), 
-        ethers.utils.parseEther("50")
-    );
-    await setupLiquidityPool();
-       // Set marketing receiver
-       await DAN.setMarketingReceiver(marketingWallet.address);
-
-
-
-  console.log("------------- STARTING SELL -------------------");
-
-  // Step 1: Transfer some DAN tokens to addr2
-  const amountToSend = ethers.utils.parseEther("19354.6679"); // Example: Sending 1000 DAN tokens to addr2 this is how much we bought before for 1 WETH
-  await DAN.transfer(addr2.address, amountToSend);
-  console.log(`Transferred ${ethers.utils.formatEther(amountToSend)} DAN tokens to addr2.`);
-
-  // Step 2: Check the balance of DAN tokens in addr2's account
-  const danBalance = await DAN.balanceOf(addr2.address);
-  console.log("DAN Balance for addr2 after transfer:", ethers.utils.formatEther(danBalance));
-
-  if (danBalance.eq(0)) {
-      throw new Error("addr2 does not have any DAN tokens to sell.");
-  }
-
-  const danAmount = danBalance; // This ensures we use all of addr2's DAN tokens for the swap
-
-  // The rest of the steps remain the same...
-
-  const uniswapPair = new ethers.Contract(lpTokenAddress, IUniswapV2Pair_ABI, ethers.provider);
-  const reserves = await uniswapPair.getReserves();
-
-
-  console.log("DAN Reserves:", ethers.utils.formatEther(reserves[0]));
-  console.log("WETH Reserves:", ethers.utils.formatEther(reserves[1]));
-
-  // Step 3: Sell the DAN tokens from addr2 for WETH
-
-  const expectedReceivedAmountAfterFee = danAmount.mul(99).div(100);
-  await DAN.connect(addr2).approve(uniswapRouter.address, danAmount);
-  console.log("Approved DAN for swapping.");
-
-
-  //const amountOutMin = danAmount.sub(danAmount.mul(slippageTolerance).div(10000));
-  const amountOutMin = ethers.utils.parseEther("0");
-
-
-  const initialWETHBalance = await WETH.balanceOf(addr2.address);
-
-  await uniswapRouter.connect(addr2).swapExactTokensForTokensSupportingFeeOnTransferTokens(
-      danAmount, 
-      amountOutMin, 
-      [DAN.address, WETH.address], 
-      addr2.address, 
-      Math.floor(Date.now() / 1000) + 60 * 10
-  );
-
-  console.log("Swapped DAN for WETH.");
-
-  const finalWETHBalance = await WETH.balanceOf(addr2.address);
-  const receivedWETH = finalWETHBalance.sub(initialWETHBalance);
-  
-  console.log("Actual WETH Received:", ethers.utils.formatEther(receivedWETH));
-  
-  const minExpectedWETH = ethers.utils.parseEther("0.9");
-  const maxExpectedWETH = ethers.utils.parseEther("1");
-  
-  // Check if received WETH is between 0.9 and 1 WETH
-  expect(receivedWETH.gte(minExpectedWETH), `Received amount ${ethers.utils.formatEther(receivedWETH)} is below ${ethers.utils.formatEther(minExpectedWETH)}`).to.be.true;
-  expect(receivedWETH.lte(maxExpectedWETH), `Received amount ${ethers.utils.formatEther(receivedWETH)} exceeds ${ethers.utils.formatEther(maxExpectedWETH)}`).to.be.true;
-
-  const tx1 = await DAN.transfer(addr2.address, amountToSend);
-  await logGasUsed(tx1);
-
-  const tx2 = await DAN.connect(addr2).approve(uniswapRouter.address, danAmount);
-  await logGasUsed(tx2);
-
-  const tx3 = await uniswapRouter.connect(addr2).swapExactTokensForTokensSupportingFeeOnTransferTokens(
-    danAmount, 
-    amountOutMin, 
-    [DAN.address, WETH.address], 
-    addr2.address, 
-    Math.floor(Date.now() / 1000) + 60 * 10
-  );
-  await logGasUsed(tx3);
-  
-
-});
-
-});
 */
 
 
