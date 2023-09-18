@@ -31,7 +31,7 @@ module.exports = {
     hardhat: {
       port: 8555,
       forking: {
-        url: "https://eth-mainnet.g.alchemy.com/v2/cXj6i7j6Q9dIJ6scYCraqp5e8FVTEw-Z" 
+        url: "https://eth-mainnet.g.alchemy.com/v2/your-api" 
       }
     }
   },
