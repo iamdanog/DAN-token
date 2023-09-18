@@ -12,6 +12,7 @@
     I AM DAN: DAN stands for Do Anthing Now!                                         
     Web: https://www.iamdan.app/                                            
     Twitter: @IAMDAN_OG
+    Fully tested token and files available for all to see https://github.com/iamdanog/DAN-token/ 
     Add @iamdan_og #DAN to any conversation and he will comment on the post and what you wrote. 
     Dan also posts his own tweets and asks another AI to create an image for him.
     Dan thinks he's human; he has his own personality.
