@@ -32,8 +32,10 @@ Dan Token contract and testing these are the tests for the DAN token everything 
 ········································|·············|·············|·············|···············|··············
 |  DAN                                  ·    4656856  ·    4656866  ·    4656859  ·       15.5 %  ·          -  │
 
+We have made these files available to everyone if they want to learn how to test and write cotnracts. 
+Also in the interestes of transparency. 
 
-HOW to use the test files 
+How to use the test files 
 
 
 You will need to set up an Alchemy account https://www.alchemy.com/ and use the API to be able to fork Ethereum 
@@ -55,3 +57,23 @@ open another and run the tests using
                            0xA0d99074026a0c0550e606c4ba23cE01CE7D0EfF
 
     uint256 private _totalSupply = 9869690000000 * (10 ** _decimals);
+
+    contract deployed to 0x276a0b591B10B911e398031c345B1714dFa5651b
+
+    Verifying contract: 
+    install npm install -g truffle-flattener
+
+    open hardhat.config.js and alter if you need to for flatten 
+
+    // Add the flatten task
+task("flatten", "Flattens contract files")
+  .setAction(async () => {
+    try {
+      execSync("truffle-flattener ./contracts/DAN.sol > ./DAN-flat.sol");
+      console.log("Contracts successfully flattened");
+    } catch (error) {
+      console.error("Error flattening contracts: ", error);
+    }
+  });
+
+  Then npx hardhat flatten
